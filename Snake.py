@@ -42,15 +42,17 @@ def load_png(name):
         raise SystemExit
     return image
 
+def reset_game():
+    pass
+
 class Apple():
     """The apple that the snake eats, will relocate itself to a random part of
     screen that is not occupied by the snake"""
 
     def __init__(self):
         self.image = load_png('apple.png')
+        self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect()
-        self.x_pos = 0
-        self.y_pos = 0
         self.location = (0, 0)
 
     def update_location(self, x, y):
@@ -66,18 +68,13 @@ class Snake():
 
     def __init__(self):
         self.image = load_png('body.png')
+        self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect()
         self.head_pos = (HEIGHT/2, WIDTH/2)
-        self.tail_pos = (HEIGHT/2, WIDTH/2)#will always be popped from back of array queue
+        self.tail_pos = (HEIGHT/2, WIDTH/2) #will always be popped from back of array queue
         print(f"rect:{self.rect}")
         self.body_array = [self.head_pos] #will be treated like a queue
         self.direction = UP
-    
-    def grow(self):
-        pass
-
-    def reinit(self):
-        pass
 
     def update_head_tail(self):
         temp_list = list(self.head_pos)
@@ -93,10 +90,6 @@ class Snake():
             temp_list[0] += self.rect.height
         
         self.head_pos = tuple(temp_list)
-
-    def move(self):
-        pass
-
 
 
 def main():
@@ -117,7 +110,7 @@ def main():
     #Initialise apple
     global appl
     appl = Apple()
-    appl.update_location(player.head_pos[0] + 100, player.head_pos[1])
+    appl.update_location(player.head_pos[0] + 120, player.head_pos[1])
 
     # Blit everything to the screen
     screen.blit(background, (0, 0))
@@ -140,17 +133,23 @@ def main():
             if event.type == QUIT:
                 return
             elif event.type == KEYDOWN:
-                if event.key == K_UP:
+                if event.key == K_ESCAPE:
+                    return
+                if event.key == K_UP and not player.direction == DOWN:
                     player.direction = UP
                 if event.key == K_DOWN and not player.direction == UP:
                     player.direction = DOWN
-                if event.key == K_LEFT:
+                if event.key == K_LEFT and not player.direction == RIGHT:
                     player.direction = LEFT
-                if event.key == K_RIGHT:
+                if event.key == K_RIGHT and not player.direction == LEFT:
                     player.direction = RIGHT
 
         
         #crude collision detection, snake eats apple
+
+
+            #reset_game()
+
         if player.head_pos == appl.location and timer == 5:
 
             #remove apple from screen and spawn new apple
@@ -193,8 +192,9 @@ def main():
         else:
             timer += 1
 
-
-
+        self_collide = player.body_array.count(player.head_pos)
+        if self_collide > 1:
+            return
 
 if __name__ == "__main__":
     main()
